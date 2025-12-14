@@ -1,108 +1,90 @@
-# Proyek MLOps: Prediksi Harga Saham Astra
+# 📈 Proyek MLOps: Prediksi Harga Saham Astra (ASII.JK)
 
-## Gambaran Umum Proyek
+[![GitHub](https://img.shields.io/badge/GitHub-code-blue?style=flat\&logo=github\&logoColor=white)](https://github.com/prsdm/mlops-project)
 
-Proyek ini merupakan **implementasi end-to-end Machine Learning Operations (MLOps)** untuk memprediksi **harga saham PT Astra International Tbk (ASII.JK)** menggunakan data historis.
+Selamat datang di **Proyek Prediksi Harga Saham Astra**. Proyek ini bertujuan untuk membangun **pipeline MLOps end-to-end** untuk memprediksi harga penutupan saham **PT Astra International Tbk (ASII.JK)** menggunakan data historis.
 
-Fokus utama proyek ini **bukan pada kompleksitas model**, melainkan pada **workflow MLOps**, mulai dari data ingestion, preprocessing, training, deployment, hingga monitoring sistem machine learning.
-
-Proyek ini dibuat untuk memenuhi **tugas Project MLOps – Program Studi Sains Data ITERA 2025**.
+Fokus utama proyek ini adalah pada **implementasi workflow MLOps**, bukan pada kompleksitas model machine learning.
 
 ---
 
-## Tujuan Proyek
+## 🎯 Tujuan Proyek
 
-* Memahami workflow lengkap MLOps
-* Menerapkan praktik terbaik MLOps (reproducibility, automation, CI/CD)
-* Mengimplementasikan sistem machine learning yang dapat dideploy secara online
-* Melatih kerja kolaboratif dalam pengembangan sistem ML berbasis GitHub
-
----
-
-## Ruang Lingkup Proyek
-
-* **Sumber Data:** Data historis harga saham Astra (ASII.JK)
-* **Tugas Prediksi:** Prediksi harga penutupan saham hari berikutnya (regresi)
-* **Fokus Utama:**
-
-  * Data ingestion & preprocessing
-  * Experiment tracking (MLflow)
-  * Model serving berbasis REST API
-  * CI/CD dengan GitHub Actions
-  * Monitoring sistem ML
+* Menerapkan workflow MLOps secara lengkap
+* Mengelola data, model, dan eksperimen secara terstruktur
+* Melakukan deployment model ke dalam bentuk API
+* Menerapkan CI/CD dan monitoring sistem ML
 
 ---
 
-## Arsitektur Sistem
+## 🏗️ Diagram Arsitektur
+
+Diagram berikut menggambarkan alur sistem dari data ingestion hingga deployment model:
 
 ```
-Sumber Data → Data Ingestion → Preprocessing → Training (MLflow)
-                                         ↓
-                                  Model Registry
-                                         ↓
-                                 API Inference (FastAPI)
-                                         ↓
-                                 Docker & Deployment
+Sumber Data (Yahoo Finance)
+        ↓
+Data Ingestion
+        ↓
+Data Preprocessing
+        ↓
+Model Training & Experiment Tracking (MLflow)
+        ↓
+Model Registry
+        ↓
+API Inference (FastAPI)
+        ↓
+Docker & Deployment
+        ↓
+Monitoring & Logging
 ```
 
 ---
 
-## Struktur Repository
+## 🚀 Cara Menjalankan Proyek
 
-```
-mlops-astra-prediction/
-├── data/
-│   ├── raw/                # Data mentah (DVC tracked)
-│   └── processed/          # Data hasil preprocessing
-├── src/
-│   ├── data/               # Script data ingestion & preprocessing
-│   ├── models/             # Script training & evaluasi model
-│   └── serving/            # API inference (FastAPI)
-├── experiments/            # Notebook EDA & eksperimen
-├── tests/                  # Unit testing
-├── .github/workflows/      # CI/CD (GitHub Actions)
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-└── README.md
-```
-
----
-
-## Teknologi yang Digunakan
-
-* **Bahasa Pemrograman:** Python 3.10
-* **Machine Learning:** Scikit-learn
-* **Experiment Tracking:** MLflow
-* **Data Versioning:** DVC
-* **API Framework:** FastAPI
-* **Containerization:** Docker
-* **CI/CD:** GitHub Actions
-* **Monitoring:** Prometheus (basic metrics)
-
----
-
-## Cara Menjalankan Proyek (Local)
-
-### 1️⃣ Install Dependency
+### 1️⃣ Clone Repository
 
 ```bash
+git clone https://github.com/<username>/mlops-astra-stock-prediction.git
+cd mlops-astra-stock-prediction
+```
+
+---
+
+### 2️⃣ Setup Environment
+
+Pastikan Python 3.8+ sudah terinstall.
+
+```bash
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2️⃣ Data Ingestion
+---
+
+### 3️⃣ Data Ingestion
+
+Mengambil data historis saham Astra (ASII.JK) dari Yahoo Finance:
 
 ```bash
 python src/data/fetch_data.py
 ```
 
-### 3️⃣ Data Preprocessing
+---
+
+### 4️⃣ Data Preprocessing
 
 ```bash
 python src/data/preprocess.py
 ```
 
-### 4️⃣ Training Model
+---
+
+### 5️⃣ Training Model
+
+Training model dan pencatatan eksperimen menggunakan MLflow:
 
 ```bash
 python src/models/train.py
@@ -114,7 +96,9 @@ Menjalankan MLflow UI:
 mlflow ui
 ```
 
-### 5️⃣ Menjalankan API Inference
+---
+
+### 6️⃣ Menjalankan FastAPI
 
 ```bash
 uvicorn src.serving.app:app --reload --port 8080
@@ -128,9 +112,9 @@ POST http://localhost:8080/predict
 
 ---
 
-## Menjalankan dengan Docker
+### 7️⃣ Docker
 
-Build image:
+Build Docker image:
 
 ```bash
 docker build -t mlops-astra .
@@ -144,40 +128,25 @@ docker run -p 8080:8080 mlops-astra
 
 ---
 
-## 🔄 CI/CD Pipeline
-
-Pipeline CI/CD berjalan otomatis menggunakan **GitHub Actions** dengan tahapan:
-
-1. Install dependency
-2. Menjalankan unit test
-3. Build Docker image
-4. Push image ke Docker Registry
-
-Konfigurasi pipeline terdapat pada:
-
-```
-.github/workflows/ci.yml
-```
-
----
-
-## Monitoring
+### 8️⃣ Monitoring Model
 
 * Monitoring jumlah request dan latency API
-* Logging error dan performa model
-* Metric diekspos menggunakan Prometheus
+* Logging performa sistem dan error
+* Metrics diekspos menggunakan Prometheus
 
 ---
 
-## 👥Pembagian Tugas Tim
+## 👥 Pembagian Tugas Tim
 
-| Nama Anggota | NIM       | Peran                        | Tanggung Jawab                                                                            |
-| ------------ | --------- | ---------------------------- | ----------------------------------------------------------------------------------------- |
-| **Salwa**   | **NIM 1** | **Data Engineer**            | Data ingestion, preprocessing data, pembuatan fitur, data versioning menggunakan DVC      |
-| **Tria Yunanni**   | **NIM 2** | **ML Engineer**              | Training model, evaluasi model, experiment tracking menggunakan MLflow                    |
-| **Meira**   | **NIM 3** | **MLOps Engineer**           | Pembuatan API inference (FastAPI), containerization menggunakan Docker, deployment sistem |
-| **Chalifia Wananda**   | **122450076** | **DevOps / Project Manager** | CI/CD menggunakan GitHub Actions, monitoring sistem, dokumentasi proyek & koordinasi tim  |
-
+| Nama   | NIM   | Peran          | Tanggung Jawab                     |
+| ------ | ----- | -------------- | ---------------------------------- |
+| Salwa Farhanatussaidah | 122450011 | Data Engineer  | Data ingestion, preprocessing, DVC |
+| Tria Yunanni | 122450062 | ML Engineer    | Training model, evaluasi, MLflow   |
+| Meira Listyaningrum | 122450055 | MLOps Engineer | API, Docker, deployment            |
+| Chalifia Wananda | 122450076 | DevOps / PM    | CI/CD, monitoring, dokumentasi     |
 
 ---
 
+## 📜 Lisensi
+
+MIT License
