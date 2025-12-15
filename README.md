@@ -9,11 +9,11 @@ Proyek ini bertujuan untuk membangun **pipeline MLOps end-to-end** untuk mempred
 
 ## 🎯 Tujuan Proyek
 
-* Menerapkan alur kerja MLOps secara end-to-end
-* Mengelola data, model, dan eksperimen secara terstruktur
-* Menyediakan model dalam bentuk **REST API**
-* Menerapkan **CI/CD menggunakan GitHub Actions**
-* Menerapkan **monitoring dasar melalui logging**
+* Menerapkan konsep MLOps dalam deployment model Machine Learning
+* Menyediakan model dalam bentuk REST API menggunakan FastAPI
+* Mengemas aplikasi menggunakan Docker agar environment konsisten
+* Menerapkan CI/CD menggunakan GitHub Actions
+* Memastikan model dapat digunakan kembali secara konsisten (reproducible)
 
 ---
 
