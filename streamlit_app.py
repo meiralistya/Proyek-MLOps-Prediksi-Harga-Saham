@@ -1,16 +1,24 @@
 import streamlit as st
-import yfinance as yf
-import pandas as pd
 import joblib
 import yaml
+import yfinance as yf
+import pandas as pd
 import matplotlib.pyplot as plt
+from datetime import datetime
+import pytz
 
-# LOAD CONFIG & MODEL
+# CONFIG & MODEL
+st.set_page_config(
+    page_title="Prediksi Arah Harga Saham",
+    layout="centered"
+)
+
 with open("config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
 MODEL_PATH = config["model"]["path"]
 THRESHOLD = config["model"]["threshold"]
+
 model = joblib.load(MODEL_PATH)
 
 # FEATURE ENGINEERING
@@ -36,58 +44,59 @@ def prepare_features(df):
 
     df["High_Low_Range"] = (df["High"] - df["Low"]) / df["Close"]
     df["Volatility_20"] = df["Return_1d"].rolling(20).std()
+
     df["RSI_14"] = calculate_rsi(df["Close"])
 
     return df
 
-# STREAMLIT UI
-st.set_page_config(page_title="Stock Direction Prediction", layout="wide")
-
+# UI
 st.title("📈 Prediksi Arah Harga Saham")
-st.write("Aplikasi MLOps untuk memprediksi **arah harga saham (UP / DOWN)**")
+st.caption("Model MLOps – Multi-Stock Price Direction Prediction")
 
-ticker = st.text_input("Masukkan Kode Saham (contoh: BBCA.JK)", "BBCA.JK")
+ticker = st.text_input(
+    "Masukkan ticker saham (contoh: ASII.JK)",
+    value="BBRI.JK"
+)
 
-if st.button("🔍 Prediksi"):
-    df = yf.Ticker(ticker).history(period="6mo")
+if st.button("Prediksi"):
+    with st.spinner("Mengambil data & melakukan prediksi..."):
+        df = yf.Ticker(ticker).history(period="3mo")
 
-    if df.empty:
-        st.error("Data saham tidak ditemukan!")
-    else:
-        df = prepare_features(df)
-        df.dropna(inplace=True)
+        if df.empty:
+            st.error("Data saham tidak ditemukan.")
+        else:
+            df = prepare_features(df)
+            df = df.dropna()
 
-        # PREDICTION
-        for col in model.feature_names_in_:
-            if col not in df.columns:
-                df[col] = 0
+            # Samakan feature dengan model
+            for col in model.feature_names_in_:
+                if col not in df.columns:
+                    df[col] = 0
 
-        X = df[model.feature_names_in_].iloc[[-1]]
-        prob = model.predict_proba(X)[0][1]
+            X = df[model.feature_names_in_].iloc[[-1]]
+            prob = model.predict_proba(X)[0][1]
 
-        prediction = "📈 UP" if prob >= THRESHOLD else "📉 DOWN"
+            prediction = "NAIK" if prob >= THRESHOLD else "TURUN"
 
-        st.subheader("🧠 Hasil Prediksi")
-        st.metric("Prediksi Arah", prediction)
-        st.metric("Probabilitas Naik", f"{prob:.2%}")
+            # OUTPUT PREDIKSI
+            st.success(f"Prediksi: {prediction}")
+            st.metric("Probabilitas Naik", f"{prob*100:.2f}%")
 
-        # PRICE CHART
-        st.subheader("📊 Grafik Harga Saham")
+            # Timestamp lokal Indonesia
+            tz = pytz.timezone("Asia/Jakarta")
+            now = datetime.now(tz)
 
-        fig, ax = plt.subplots()
-        ax.plot(df.index, df["Close"], label="Close Price")
-        ax.plot(df.index, df["MA_20"], label="MA 20")
-        ax.plot(df.index, df["MA_50"], label="MA 50")
-        ax.legend()
-        ax.set_title(f"Harga Saham {ticker}")
-        st.pyplot(fig)
+            st.caption(f"⏱️ {now.strftime('%Y-%m-%d %H:%M:%S')} WIB")
 
-        # RSI CHART
-        st.subheader("📉 RSI Indicator")
+            # GRAFIK
+            st.subheader("📈 Harga Saham (Close Price)")
+            st.line_chart(df["Close"])
 
-        fig2, ax2 = plt.subplots()
-        ax2.plot(df.index, df["RSI_14"])
-        ax2.axhline(70, linestyle="--")
-        ax2.axhline(30, linestyle="--")
-        ax2.set_title("RSI 14")
-        st.pyplot(fig2)
+            st.subheader("📊 Indikator RSI")
+            fig, ax = plt.subplots()
+            ax.plot(df.index, df["RSI_14"], label="RSI")
+            ax.axhline(70, linestyle="--")
+            ax.axhline(30, linestyle="--")
+            ax.set_ylabel("RSI")
+            ax.legend()
+            st.pyplot(fig)
